@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>拖拽</title>
+	<style type="text/css">
+		#container,
+		.grid,
+		.layout{
+			position: absolute;
+		    top: 0;
+		    left: 0;
+		    bottom: 0;
+		    right: 0;
+		}
+		.inner{
+			width: 100%;
+			height: 2000px;
+			position: relative;
+		}
+		.grid{
+			margin-right: 20px;
+		}
+		.drag-card{
+			position: absolute;
+			background-color: #999;
+			box-sizing: border-box;
+			border: 1px dashed red;
+		}
+		.drag-card .top,
+		.drag-card .bottom,
+		.drag-card .left,
+		.drag-card .right,
+		.drag-card .top-left,
+		.drag-card .top-right,
+		.drag-card .bottom-left,
+		.drag-card .bottom-right{
+			position: absolute;
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			border: 1px solid #666;
+		}
+		.drag-card .top{
+			top: 0;
+			left: 50%;
+			margin-left: -4px;
+			margin-top: -4px;
+		}
+		.drag-card .top:hover{
+			cursor: n-resize;
+		}
+		.drag-card .bottom{
+			bottom: 0;
+			left: 50%;
+			margin-left: -4px;
+			margin-bottom: -4px;
+		}
+		.drag-card .bottom:hover{
+			cursor: s-resize;
+		}
+		.drag-card .left{
+			top: 50%;
+			left: 0;
+			margin-left: -4px;
+			margin-top: -4px;
+		}
+		.drag-card .left:hover{
+			cursor: w-resize;
+		}
+		.drag-card .right{
+			top: 50%;
+			right: 0;
+			margin-right: -4px;
+			margin-top: -4px;
+		}
+		.drag-card .right:hover{
+			cursor: e-resize;
+		}
+		.drag-card .top-left{
+			top: 0;
+			left: 0;
+			margin-top: -4px;
+			margin-left: -4px;
+		}
+		.drag-card .top-left:hover{
+			cursor: nw-resize;
+		}
+		.drag-card .top-right{
+			top: 0;
+			right: 0;
+			margin-top: -4px;
+			margin-right: -4px;
+		}
+		.drag-card .top-right:hover{
+			cursor: ne-resize;
+		}
+		.drag-card .bottom-left{
+			bottom: 0;
+			left: 0;
+			margin-left: -4px;
+			margin-bottom: -4px;
+		}
+		.drag-card .bottom-left:hover{
+			cursor: sw-resize;
+		}
+		.drag-card .bottom-right{
+			bottom: 0;
+			right: 0;
+			margin-right: -4px;
+			margin-bottom: -4px;
+		}
+		.drag-card .bottom-right:hover{
+			cursor: se-resize;
+		}
+		.opacity-5{
+			opacity: .5;
+		}
+		.drag-card-copy{
+			background-color: 'lightgreen';
+		}
+	</style>
+	<script type="text/javascript" src="jquery-3.2.1.js"></script>
+	<script type="text/javascript" src="grid.js"></script>
+	<script type="text/javascript" src="core.js"></script>
+	<script type="text/javascript" src="card.js"></script>
+	<script type="text/javascript" src="drag.js"></script>
+</head>
+<body>
+	<div id="container">
+		<div class="inner">
+			<div class="grid"></div>
+			<div class="layout"></div>
+		</div>
+	</div>
+</body>
+
+<script type="text/javascript">
+	// var grid = new Grid({
+	// 	el: '#container',
+	// 	cellHeight: 152,
+	// 	spacingX: 24,
+	// 	spacingY: 24,
+	// 	bgColor: 'lightgray'
+	// });
+	// var core = new Core({
+	// 	cellAmount: 12,
+	// 	locArray: [
+	// 				[1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6],
+	// 			 	[1, 1, 0, 0, 3, 3, 4, 4, 5, 5, 5, 6],
+	// 			 	[1, 1, 0, 0, 0, 0, 4, 4, 5, 5, 5, 0],
+	// 			 	[0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0],
+	// 			 	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	// 			],
+	// 	firstNullArray: [{
+	// 			row: 3,
+	// 			col: 0
+	// 		},{
+	// 			row: 3,
+	// 			col: 1
+	// 		},{
+	// 			row: 1,
+	// 			col: 2
+	// 		},{
+	// 			row: 1,
+	// 			col: 3
+	// 		},{
+	// 			row: 2,
+	// 			col: 4
+	// 		},{
+	// 			row: 2,
+	// 			col: 5
+	// 		},{
+	// 			row: 4,
+	// 			col: 6
+	// 		},{
+	// 			row: 4,
+	// 			col: 7
+	// 		},{
+	// 			row: 3,
+	// 			col: 8
+	// 		},{
+	// 			row: 3,
+	// 			col: 9
+	// 		},{
+	// 			row: 3,
+	// 			col: 10
+	// 		},{
+	// 			row: 2,
+	// 			col: 11
+	// 		}]
+	// })
+	var drag = new Drag({
+		el: '#container',
+		cellAmount: 12,
+		cellHeight: 152,
+		spacingX: 24,
+		spacingY: 24,
+		bgColor: 'lightgray',
+		isHeightEqualWidth: true
+	});
+	drag.add([{
+		width: 3,
+		height: 3
+	}], true);
+</script>
+</html>
