@@ -11,7 +11,11 @@ function Card(opts) {
 		width: 0,
 		height: 0,
 		w: 0,
-		h: 0
+		h: 0,
+		maxWidth: -1,
+		maxHeight: -1,
+		minWidth: 1,
+		minHeight: 1 
 
 	}, opts);
 	this.init();
@@ -110,6 +114,7 @@ Card.prototype = {
 			col = (this.x - this.spacingX / 2) / this.outerWidth;
 		row = row < 0 ? 0 : Math.floor(row);
 		col = col < 0 ? 0 : Math.floor(col);
+		col = col > this.cellAmount - this.width ? this.cellAmount - this.width : col;
 		return {
 			row: row,
 			col: col

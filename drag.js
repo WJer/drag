@@ -107,7 +107,8 @@ Drag.prototype = {
 				spacingX: self.spacingX,
 				spacingY: self.spacingY,
 				cellWidth: size.cellWidth,
-				cellHeight: size.cellHeight
+				cellHeight: size.cellHeight,
+				cellAmount: self.cellAmount
 			}, item, loc);
 			card = new Card(opt);
 			opt.id = card.getId();
