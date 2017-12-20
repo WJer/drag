@@ -153,9 +153,12 @@ Drag.prototype = {
 	onDragLocation: function(e) {
 		var loc = this.distanceToLayout(e.clientX, e.clientY),
 			delx = loc.x - this.mousedown.x,
-			dely = loc.y - this.mousedown.y;
-
-		this.dragCard.updateLoc(this.mousedownCard.x + delx, this.mousedownCard.y + dely);
+			dely = loc.y - this.mousedown.y,
+			x = this.mousedownCard.x + delx,
+			y = this.mousedownCard.y + dely;
+		this.dragCard.x = x;
+		this.dragCard.y = y;
+		this.dragCard.updateLoc();
 	},
 
 	onUpdateSize: function(e) {
@@ -167,18 +170,16 @@ Drag.prototype = {
 			c = [3,5,7].indexOf(this.updating) > -1 ? 1 : 0,
 			d = [1,5,6].indexOf(this.updating) > -1 ? 1 : 0;
 
-		this.dragCard.updateLoc(
-			this.mousedownCard.x + delx * c,
-			this.mousedownCard.y + dely * d
-		);
-		this.dragCard.updateSize(
-			this.mousedownCard.w + delx * a,
-			this.mousedownCard.h + dely * b
-		);
+		this.dragCard.x = this.mousedownCard.x + delx * c;
+		this.dragCard.y = this.mousedownCard.y + dely * d;
+		this.dragCard.w = this.mousedownCard.w + delx * a;
+		this.dragCard.h = this.mousedownCard.h + dely * b;
+		this.dragCard.update();
 	},
 
 	onCardMouseup: function(e, $target) {
 		$target.removeClass('opacity-5');
+		this.dragCard.updateByGrid();
 		this.dragging = false;
 		this.updating = false;
 		this.dragCard = null;

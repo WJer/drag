@@ -22,8 +22,13 @@ Core.prototype = {
 	},
 
 	//分配位置
-	allot: function(loc) {
+	allot: function(data) {
+		this.setLocation(data);
+	},
+
+	fill: function() {
 		
+
 	},
 
 	setLocation: function(data) {

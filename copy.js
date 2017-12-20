@@ -8,15 +8,19 @@ function Copy(opts) {
 Copy.prototype = {
 
 	init: function() {
-		var html = [
-			'<div class="drag-card-copy">',
-			'</div>'
-		].join('');
+		var html = this.getHtml();
 		this.$el = $(html);
 		this.el = this.$el[0];
 	},
 
-	updateLoc: function() {
+	getHtml: function() {
+		return [
+			'<div class="drag-card-copy">',
+			'</div>'
+		].join('')
+	},
+
+	updateLoc: function(x, y) {
 
 	},
 

@@ -11,10 +11,7 @@ function Card(opts) {
 		width: 0,
 		height: 0,
 		w: 0,
-		h: 0,
-
-		toRow: 0,
-		toCol: 0
+		h: 0
 
 	}, opts);
 	this.init();
@@ -31,19 +28,50 @@ Card.prototype = {
 		this.createDom();
 	},
 
-	getId: function() {
-		return this._id;
+	createDom: function() {
+		var html = this.getHtml();
+		this.$el = $(html).attr('data-id', this._id);
+		this.updateByGrid();
+		
 	},
 
-	createDom: function() {
-		var width = this.width * this.outerWidth - this.spacingX,
-			height = this.height * this.outerHeight - this.spacingY,
-			x = this.spacingX + this.col * this.outerWidth,
-			y = this.spacingY + this.row * this.outerHeight;
+	//从单元格坐标来计算位置大小信息
+	updateByGrid: function() {
+		var loc = this.calcaulateLoc(),
+			size = this.calculateSize();
+		$.extend(this,loc, size);
+		this.updateLoc();
+		this.updateSize();
+	},
 
-		this.$el = $(this.getHtml()).attr('data-id', this._id);
-		this.updateLoc(x, y);
-		this.updateSize(width, height);
+	update: function(type) {
+		if(!type || type == 1) {
+			this.updateLoc();
+		}
+		if(!type || type == 2) {
+			this.updateSize();
+		}
+	},
+
+	updateLoc: function() {
+		var toLoc = this.convertLocToRC();
+		this.row = toLoc.row;
+		this.col = toLoc.col;
+		this.$el.css({
+			top: this.y,
+			left: this.x
+		});
+
+	},
+
+	updateSize: function() {
+		var toSize = this.convertSizeToRC();
+		this.width = toSize.width;
+		this.height = toSize.height;
+		this.$el.css({
+			width: this.w,
+			height: this.h
+		});
 	},
 
 	getHtml: function() {
@@ -63,26 +91,48 @@ Card.prototype = {
 		].join('');
 	},
 
+	calcaulateLoc: function() {
+		return {
+			x: this.spacingX + this.col * this.outerWidth,
+			y: this.spacingY + this.row * this.outerHeight
+		}
+	},
+
+	calculateSize: function() {
+		return {
+			w: this.width * this.outerWidth - this.spacingX,
+			h: this.height * this.outerHeight - this.spacingY
+		}
+	},
+
+	convertLocToRC: function() {
+		var row = (this.y - this.spacingY / 2) / this.outerHeight,
+			col = (this.x - this.spacingX / 2) / this.outerWidth;
+		row = row < 0 ? 0 : Math.floor(row);
+		col = col < 0 ? 0 : Math.floor(col);
+		return {
+			row: row,
+			col: col
+		}
+	},
+
+	convertSizeToRC: function() {
+		var width = this.w / this.outerWidth,
+			height = this.h / this.outerHeight;
+		width = width < 1 ? 1 : Math.ceil(width);
+		height = height < 1 ? 1 : Math.ceil(height);
+		return {
+			width: width,
+			height: height
+		}
+	},
+
+	getId: function() {
+		return this._id;
+	},
+
 	setStatus: function(status) {
 
-	},
-
-	updateLoc: function(x, y) {
-		this.x = x;
-		this.y = y;
-		this.$el.css({
-			top: this.y,
-			left: this.x
-		});
-	},
-
-	updateSize: function(w, h) {
-		this.w = w;
-		this.h = h;
-		this.$el.css({
-			'width': w,
-			'height': h
-		});
 	}
 }
 
