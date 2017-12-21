@@ -56,40 +56,24 @@ Drag.prototype = {
 
 	createCore: function() {
 		var core = new Core({
-			cellAmount: this.cellAmount
+			cellAmount: this.cellAmount,
+			cards: this.cards
 		});
 		this.core = core;
 	},
 
-	//创建一个副本
-	createCopy: function() {
-
-	},
-
 	bindEvent: function() {
 		var self = this;
-		self.$el.on('mousedown', function(e) {
-			var $target = $(e.target);
-			e.stopPropagation();
-			self.dragging = $target.hasClass('drag-card');
-			self.updating = $target.hasClass('size-btn') && +$target.attr('data-direct');
-			if(self.dragging || self.updating) {
-				self.onCardMousedown(e, $target);
-			}
-		});
-		self.$el.on('mouseup', function(e) {
-			var $target = $(e.target);
-			e.stopPropagation();
-			if(self.dragging || self.updating) {
-				self.onCardMouseup(e, $target);
-			}
-		});
-		self.$el.on('mousemove', function(e) {
-			var $target = $(e.target);
-			e.stopPropagation();
-			if(self.dragging || self.updating) {
-				self.onCardMousemove(e, $target);
-			}
+		this.events = {
+			'mousedown': 'onMousedown',
+			'mouseup': 'onMouseup',
+			'mousemove': 'onMousemove'
+		};
+		Object.keys(this.events).forEach(function(item) {
+			self.$el.on(item, function(e) {
+				e.stopPropagation();
+				self[self.events[item]](e);
+			});
 		});
 	},
 
@@ -99,7 +83,9 @@ Drag.prototype = {
 			cards = this.cards,
 			size = this.grid.getSize(),
 			docfrag = document.createDocumentFragment();
-
+		if(Object.prototype.toString.call(list).indexOf('Object') > -1) {
+			list = [list];
+		}
 		list.forEach(function(item) {
 			var opt, loc, card;
 			loc = isNew ? core.getBestLoc(item.width, item.height) : {};
@@ -120,16 +106,25 @@ Drag.prototype = {
 		this.$layout[0].appendChild(docfrag);
 	},
 
-	onCardMousedown: function(e, $target) {
-		var loc = this.distanceToLayout(e.clientX, e.clientY);
-		if(this.updating) {
-			$target = $target.closest('.drag-card');
+	onMousedown: function(e) {
+		var $target = $(e.target),
+			action = $target.data('action'),
+			$card;
+		this.dragging = action == 'drag';
+		this.updating = action == 'update' && +$target.data('direct');
+		if(!(this.dragging || this.updating)) {
+			return;
 		}
+		this.saveDragstartData(e);
+		$card = this.dragCard.$el;
 		if(this.dragging) {
-			$target.addClass('opacity-5');
+			$card.addClass('opacity-5');
 		}
-		this.createCopy();
-		this.dragCard = this.cards[$target.attr('data-id')];
+	},
+
+	saveDragstartData: function(e) {
+		var loc = this.distanceToLayout(e.clientX, e.clientY);
+		this.dragCard = this.cards[$(e.target).closest('.drag-card').attr('data-id')];
 		this.mousedown = {
 			x: loc.x,
 			y: loc.y
@@ -142,7 +137,7 @@ Drag.prototype = {
 		};
 	},
 
-	onCardMousemove: function(e, $target) {
+	onMousemove: function(e) {
 		if(this.dragging) {
 			this.onDragLocation(e);
 		}
@@ -160,6 +155,13 @@ Drag.prototype = {
 		this.dragCard.x = x;
 		this.dragCard.y = y;
 		this.dragCard.updateLoc();
+		this.core.setLocation({
+			row: this.dragCard.row,
+			col: this.dragCard.col,
+			width: this.dragCard.width,
+			height: this.dragCard.height,
+			id: this.dragCard.getId()
+		});
 	},
 
 	onUpdateSize: function(e) {
@@ -178,8 +180,13 @@ Drag.prototype = {
 		this.dragCard.update();
 	},
 
-	onCardMouseup: function(e, $target) {
-		$target.removeClass('opacity-5');
+	onMouseup: function(e) {
+		if(!(this.dragging || this.updating)) {
+			return;
+		}
+		if(this.dragCard) {
+			this.dragCard.$el.removeClass('opacity-5')
+		}
 		this.dragCard.updateByGrid();
 		this.dragging = false;
 		this.updating = false;

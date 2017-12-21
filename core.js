@@ -4,7 +4,8 @@
 
 function Core(opts) {
 	$.extend(this, {
-		cellAmount: 4
+		cellAmount: 4,
+		cards: {}
 	}, opts);
 
 	this._locArray = [];
@@ -22,12 +23,15 @@ Core.prototype = {
 	},
 
 	//分配位置
-	allot: function(data) {
-		this.setLocation(data);
-	},
-
-	fill: function() {
-		
+	allot: function(move) {
+		this.setLocation({
+			row: move.row,
+			col: move.col,
+			width: move.width,
+			height: move.height,
+			id: move.id
+		});
+		move = this.getRuleLoc();
 
 	},
 
@@ -102,6 +106,48 @@ Core.prototype = {
 		};
 	},
 
+	fill: function() {
+		var self = this,
+			cards = this.cards,
+			card,
+			amount;
+		this.iterateArray(this._locArray, 0, this._locArray.length, undefined, 0, this.cellAmount, function(id) {
+			if(!id) {
+				return;
+			}
+			card = cards[id];
+			amount = self.getAboveEmptyLine(card);
+			if(amount > 0) {
+				self.setLocation(card, 0);
+				card.row -= amount;
+				self.setLocation(card, card.id);
+			}
+		});
+	},
+
+	getAboveEmptyLine: function(data) {
+		var count = 0,
+			i = 0,
+			arr = this._locArray,
+			isExit = data.row == 0 ? true : false;
+		
+		while(!isExit && i > -1) {
+			var line = data.row - i - 1,
+				j = data.col;
+			for(; j < data.col + data.width; j++) {
+				if(arr[i][j]) {
+					isExit = true;
+					break;
+				}
+			}
+			if(!isExit) {
+				count++;
+			}
+			i++;
+		}
+		return count;
+	},
+
 	iterateArray: function(array, i_i, len_i, cb_i, j_j, len_j, cb_j) {
 		var self = this,
 			amount = this.cellAmount;
@@ -127,7 +173,7 @@ Core.prototype = {
 		return result;
 	},
 
-	//更新空行的起始行
+	//更新每一列空行的起始行数
 	updateFirstNullArray: function() {
 		var arr = this._firstNullArray,
 			locArr = this._locArray,
@@ -158,5 +204,30 @@ Core.prototype = {
 			}
 			i++;
 		}
+	},
+
+	/**
+	 * 获取位置
+	 * 规则：
+	 * 移动卡片占据目标位置上的原有卡片的第一行才会将它挤到下方，否则目标卡片移动到原卡片的下方
+	 */
+	getRuleLoc: function(move) {
+		var	self = this,
+			arr = this.locArr,
+			temp = [];
+		if(!arr[move.row]) {
+			return move;
+		}
+		for(var j = move.toCol; j < move.toCol + move.width; j++) {
+			var id = arr[move.row][j];
+			if(id && !~temp.indexOf(id)) {
+				var card = self.cards[id];
+				temp.push(id);
+				if(move.toRow !== card.row) {
+					move.toRow = card.row + card.height;
+				}
+			}
+		}
+		return move;
 	}
 }

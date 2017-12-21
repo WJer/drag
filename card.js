@@ -80,16 +80,16 @@ Card.prototype = {
 
 	getHtml: function() {
 		return [
-			'<div class="drag-card">',
+			'<div class="drag-card" data-action="drag">',
 				'<div class="drag-card-size">',
-					'<span class="top size-btn" data-direct="1"></span>',
-					'<span class="bottom size-btn" data-direct="2"></span>',
-					'<span class="left size-btn" data-direct="3"></span>',
-					'<span class="right size-btn" data-direct="4"></span>',
-					'<span class="top-left size-btn" data-direct="5"></span>',
-					'<span class="top-right size-btn" data-direct="6"></span>',
-					'<span class="bottom-left size-btn" data-direct="7"></span>',
-					'<span class="bottom-right size-btn" data-direct="8"></span>',
+					'<span class="top size-btn" data-direct="1" data-action="update"></span>',
+					'<span class="bottom size-btn" data-direct="2" data-action="update"></span>',
+					'<span class="left size-btn" data-direct="3" data-action="update"></span>',
+					'<span class="right size-btn" data-direct="4" data-action="update"></span>',
+					'<span class="top-left size-btn" data-direct="5" data-action="update"></span>',
+					'<span class="top-right size-btn" data-direct="6" data-action="update"></span>',
+					'<span class="bottom-left size-btn" data-direct="7" data-action="update"></span>',
+					'<span class="bottom-right size-btn" data-direct="8" data-action="update"></span>',
 				'</div>',
 			'</div>'
 		].join('');
@@ -134,10 +134,6 @@ Card.prototype = {
 
 	getId: function() {
 		return this._id;
-	},
-
-	setStatus: function(status) {
-
 	}
 }
 
